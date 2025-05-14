@@ -1,0 +1,126 @@
+    1  acme --set-owner gbiagini
+    2  ls -al
+    3  vim .zshrc
+    4  source .zshrc
+    5  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    6  xcode-select --install
+    7  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    8  nvm
+    9  nvm install 
+   10  nvm install node
+   11  ls -al
+   12  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"\n\n
+   13  curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"\nsudo installer -pkg AWSCLIV2.pkg -target /
+   14  which aws
+   15  aws configure
+   16  vim ~/.aws/credentials
+   17  q doctor
+   18  clear
+   19  npm i -g typescript
+   20  npm i -g aws-cdk
+   21  cdk --version
+   22  clear
+   23  ls
+   24  cd Documents/
+   25  ls
+   26  clear
+   27  cd ../
+   28  cd Desktop/
+   29  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   30  brew install git
+   31  eval "$(/opt/homebrew/bin/brew shellenv)"
+   32  source ~/.zshrc
+   33  brew install git
+   34  git config --global user.name "gbiagini"
+   35  git config --global user.name 
+   36  git config --global user.email "gbiagini97@gmail.com"
+   37  git config --global user.email
+   38  clear
+   39  ls
+   40  mkdir sls-dx-demo
+   41  cd sls-dx-demo/
+   42  git init -b main
+   43  touch README.md
+   44  git add .
+   45  git commit -m "initial commit"
+   46  git remote add origin https://github.com/gbiagini97/sls-dx-demo.git
+   47  git remote -v
+   48  git branch -M main
+   49  git push -u origin main
+   50  history
+   51  history >> README.md
+   52  cat README.md
+   53  cdk init app --language typescript
+   54  ls
+   55  rm *
+   56  cdk init app --language typescript
+   57  clear
+   58  npm install  -D @aws-sdk/lib-dynamodb
+   59  npm i -D esbuild
+   60  npm i -d types/aws-lambda
+   61  brew install --cask git-credential-manager
+   62  npm i -d types/aws-lambda
+   63  ls
+   64  cd ~/.ssh
+   65  ls
+   66  ssh-keygen
+   67  ls
+   68  cat id_ed25519.pub
+   69  npm i -d types/aws-lambda
+   70  npm i -d @types/aws-lambda
+   71  npm run deploy
+   72  npm i -D uuid
+   73  npm run deploy
+   74  cdk destroy
+   75  npm run deploy
+   76  npm run test
+   77  npm run deploy
+   78  npm run deploy --hotswap
+   79  cdk deploy --outputs-file outputs.json --hostswap
+   80  cdk deploy --outputs-file outputs.json --hotswap
+   81  npm run test
+   82  cdk destroy && npm run deploy
+   83  npm run test
+   84  npm run deploy
+   85  npm run test
+   86  npm run deploy
+   87  npm run test
+   88  npm run deploy
+   89  cdk destroy
+   90  npm run deploy
+   91  npm run test
+   92  git status
+   93  $ cdk bootstrap <aws://027625171711/eu-central-1>
+   94  $ cdk bootstrap aws://027625171711/eu-central-1
+   95  cdk bootstrap aws://027625171711/eu-central-1
+   96  cdk bootstrap aws://027625171711/eu-central-1 aws://164628550684/eu-central-1 aws://791918578647/eu-central-1 
+   97  code ~/.aws/credentials
+   98  vscode ~/.aws/credentials
+   99  vim ~/.aws/credentials
+  100  cdk bootstrap aws://027625171711/eu-central-1 aws://164628550684/eu-central-1 aws://791918578647/eu-central-1 
+  101  cdk bootstrap aws://027625171711/eu-central-1 
+  102  cdk bootstrap aws://027625171711/eu-central-1 aws://164628550684/eu-central-1 aws://791918578647/eu-central-1 
+  103  aws configure sso --use-device-code
+  104  vim ~/.aws/credentials
+  105  aws sts get-caller-identity --profile AdministratorAccess-027625171711
+  106  cdk bootstrap aws://027625171711/eu-central-1 
+  107  cdk bootstrap aws://027625171711/eu-central-1  --profile AdministratorAccess-027625171711
+  108  aws sts get-caller-identity --profile AdministratorAccess-164628550684/
+  109  aws sts get-caller-identity --profile AdministratorAccess-164628550684
+  110  aws configure sso-session
+  111  aws sso login --sso-session gbiagini-session
+  112  aws configure sso --use-device-code
+  113  aws sts get-caller-identity --profile test
+  114  cdk bootstrap aws://791918578647/eu-central-1  --profile test
+  115* cd ~/.aws/sso
+  116* ls
+  117* cd ../
+  118* ls
+  119* cd cli
+  120* ls
+  121* cd ..
+  122* vim config
+  123  cdk bootstrap aws://791918578647/eu-central-1 --profile prod
+  124  aws configure sso --use-device-code
+  125  aws sts get-caller-identity --profile prod
+  126  cdk bootstrap aws://164628550684/eu-central-1 --profile prod

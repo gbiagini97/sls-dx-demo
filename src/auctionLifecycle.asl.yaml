@@ -1,0 +1,130 @@
+Comment: "State machine to manage auction lifecycle from start to end"
+StartAt: LogInput
+States:
+  LogInput:
+    Type: Pass
+    Result: "Received input"
+    ResultPath: "$.logging.input"
+    Next: ExtractAuctionDetails
+
+  ExtractAuctionDetails:
+    Type: Pass
+    Parameters:
+      "itemID.$": "$.dynamodb.NewImage.itemID.S"
+      "startDate.$": "$.dynamodb.NewImage.startDate.S"
+      "endDate.$": "$.dynamodb.NewImage.endDate.S"
+      "status.$": "$.dynamodb.NewImage.status.S"
+    ResultPath: "$.auction"
+    Next: CheckAuctionStatus
+
+  CheckAuctionStatus:
+    Type: Choice
+    Choices:
+      - Variable: "$.auction.status"
+        StringEquals: "closed"
+        Next: WaitForAuctionStart
+      - Variable: "$.auction.status"
+        StringEquals: "open"
+        Next: WaitForAuctionEnd
+    Default: SuccessState
+
+  WaitForAuctionStart:
+    Type: Wait
+    TimestampPath: "$.auction.startDate"
+    Next: UpdateAuctionToOpen
+
+  UpdateAuctionToOpen:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:updateItem
+    Parameters:
+      TableName: ${AuctionsTableName}
+      Key:
+        itemID:
+          S.$: "$.auction.itemID"
+        startDate:
+          S.$: "$.auction.startDate"
+      UpdateExpression: "SET #status = :status"
+      ExpressionAttributeNames:
+        "#status": "status"
+      ExpressionAttributeValues:
+        ":status":
+          S: "open"
+      ReturnValues: "ALL_NEW"
+    ResultPath: "$.updateResult"
+    Next: WaitForAuctionEnd
+
+  WaitForAuctionEnd:
+    Type: Wait
+    TimestampPath: "$.auction.endDate"
+    Next: GetWinningBid
+
+  GetWinningBid:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:query
+    Parameters:
+      TableName: ${BidsTableName}
+      KeyConditionExpression: "auctionID = :auctionID"
+      ExpressionAttributeValues:
+        ":auctionID":
+          S.$: "States.Format('{}#{}', $.auction.itemID, $.auction.startDate)"
+      ScanIndexForward: false
+      Limit: 1
+    ResultPath: "$.winningBid"
+    Next: CheckIfBidsExist
+
+  CheckIfBidsExist:
+    Type: Choice
+    Choices:
+      - Variable: "$.winningBid.Items[0]"
+        IsPresent: true
+        Next: CloseAuctionWithWinner
+    Default: CloseAuctionWithoutWinner
+
+  CloseAuctionWithWinner:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:updateItem
+    Parameters:
+      TableName: ${AuctionsTableName}
+      Key:
+        itemID:
+          S.$: "$.auction.itemID"
+        startDate:
+          S.$: "$.auction.startDate"
+      UpdateExpression: "SET #status = :status, winningBidId = :winningBidId, winningUserId = :winningUserId, finalPrice = :finalPrice"
+      ExpressionAttributeNames:
+        "#status": "status"
+      ExpressionAttributeValues:
+        ":status":
+          S: "closed"
+        ":winningBidId":
+          S.$: "$.winningBid.Items[0].auctionID.S"
+        ":winningUserId":
+          S.$: "$.winningBid.Items[0].userID.S"
+        ":finalPrice":
+          N.$: "$.winningBid.Items[0].bidPrice.N"
+      ReturnValues: "ALL_NEW"
+    ResultPath: "$.closeResult"
+    Next: SuccessState
+
+  CloseAuctionWithoutWinner:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:updateItem
+    Parameters:
+      TableName: ${AuctionsTableName}
+      Key:
+        itemID:
+          S.$: "$.auction.itemID"
+        startDate:
+          S.$: "$.auction.startDate"
+      UpdateExpression: "SET #status = :status"
+      ExpressionAttributeNames:
+        "#status": "status"
+      ExpressionAttributeValues:
+        ":status":
+          S: "closed"
+      ReturnValues: "ALL_NEW"
+    ResultPath: "$.closeResult"
+    Next: SuccessState
+
+  SuccessState:
+    Type: Succeed

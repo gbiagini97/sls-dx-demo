@@ -1,0 +1,102 @@
+name: Deploy and Test
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'test'
+      - 'prod'
+  pull_request:
+    branches:
+      - 'test'
+      - 'prod'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+          role-to-assume: ${{ steps.branch-name.outputs.current_branch == 'test' && secrets.AWS_ROLE_TEST || (steps.branch-name.outputs.current_branch == 'prod' && secrets.AWS_ROLE_PROD || secrets.AWS_ROLE_DEV) }}
+          role-duration-seconds: 1200
+
+      - name: Deploy with CDK
+        run: |
+          export BRANCH=${{ steps.branch-name.outputs.current_branch }}
+          npm run deploy:${{ steps.branch-name.outputs.current_branch == 'test' && 'test' || (steps.branch-name.outputs.current_branch == 'prod' && 'prod' || 'dev') }} -- --all --require-approval never
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+
+      - name: Run tests
+        if: ${{ steps.branch-name.outputs.current_branch == 'test' }}
+        id: run-tests
+        run: |
+          export BRANCH=${{ steps.branch-name.outputs.current_branch }}
+          npm run test:${{ steps.branch-name.outputs.current_branch }}
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+
+      - name: Rollback on test failure
+        if: ${{ steps.branch-name.outputs.current_branch == 'test' && failure() }}
+        run: |
+          export BRANCH=${{ steps.branch-name.outputs.current_branch }}
+          npm run destroy:${{ steps.branch-name.outputs.current_branch }} -- --all --force
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+          role-to-assume: ${{ secrets.AWS_ROLE_DEV }}
+          role-duration-seconds: 1200
+
+      - name: Destroy resources
+        run: |
+          export BRANCH=${{ steps.branch-name.outputs.head_ref_branch }}
+          npm run destroy:dev -- --all --force
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.head_ref_branch }}

@@ -1,0 +1,76 @@
+Comment: "Express Step Function for placing bids on auctions"
+StartAt: ValidateInput
+States:
+  ValidateInput:
+    Type: Pass
+    Next: GetAuction
+    ResultPath: null
+
+  GetAuction:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:getItem
+    Parameters:
+      TableName: ${AuctionsTableName}
+      Key:
+        itemID:
+          S.$: "States.ArrayGetItem(States.StringSplit($.auctionID, '#'), 0)"
+        startDate:
+          S.$: "States.ArrayGetItem(States.StringSplit($.auctionID, '#'), 1)"
+    ResultPath: "$.auction"
+    Next: CheckAuctionStatus
+    Catch:
+      - ErrorEquals: ["States.ALL"]
+        ResultPath: "$.error"
+        Next: FailState
+
+  CheckAuctionStatus:
+    Type: Choice
+    Choices:
+      - Variable: "$.auction.Item.status.S"
+        StringEquals: "open"
+        Next: PlaceBid
+    Default: AuctionNotOpen
+
+  AuctionNotOpen:
+    Type: Pass
+    Result: "Auction is not open for bidding"
+    ResultPath: "$.error"
+    Next: FailState
+
+  PlaceBid:
+    Type: Task
+    Resource: arn:aws:states:::aws-sdk:dynamodb:putItem
+    Parameters:
+      TableName: ${BidsTableName}
+      Item:
+        auctionID:
+          S.$: "$.auctionID"
+        userID:
+          S.$: "$.userID"
+        bidPrice:
+          N.$: "States.Format('{}', $.bidPrice)"
+        createdAt:
+          S.$: "$$.Execution.StartTime"
+    ResultPath: "$.bidResult"
+    Next: SuccessState
+    Catch:
+      - ErrorEquals: ["States.ALL"]
+        ResultPath: "$.error"
+        Next: FailState
+
+  SuccessState:
+    Type: Pass
+    End: true
+    Result:
+      status: "success"
+      message: "Bid placed successfully"
+      bid:
+        auctionID.$: "$.auctionID"
+        userID.$: "$.userID"
+        bidPrice.$: "$.bidPrice"
+        createdAt.$: "$$.Execution.StartTime"
+
+  FailState:
+    Type: Fail
+    Error: "BidPlacementError"
+    Cause: "Failed to place bid"

@@ -1,0 +1,28 @@
+{
+  "main-StatefulStack": {
+    "ExportsOutputFnGetAttBidsTableE1AD1632Arn920A85E0": "arn:aws:dynamodb:eu-central-1:027625171711:table/main-Bids",
+    "BidsTableName": "main-Bids",
+    "AuctionItemsTableName": "main-AuctionItems",
+    "ExportsOutputRefAuctionsTable5F5B5494FAC156E0": "main-Auctions",
+    "ProcessAuctionStreamFunctionName": "main-ProcessAuctionStream",
+    "BidsTableArn": "arn:aws:dynamodb:eu-central-1:027625171711:table/main-Bids",
+    "AuctionEventsDLQUrl": "https://sqs.eu-central-1.amazonaws.com/027625171711/main-AuctionEventsDLQ",
+    "ExportsOutputRefBidsTableE1AD1632086B90CC": "main-Bids",
+    "ExportsOutputFnGetAttAuctionsTable5F5B5494Arn906DFF3C": "arn:aws:dynamodb:eu-central-1:027625171711:table/main-Auctions",
+    "AuctionPipeName": "main-AuctionStreamToStepFunction",
+    "AuctionLifecycleStateMachineArn": "arn:aws:states:eu-central-1:027625171711:stateMachine:main-AuctionLifecycleSfn",
+    "AuctionsTableStreamArn": "arn:aws:dynamodb:eu-central-1:027625171711:table/main-Auctions/stream/2025-05-13T23:53:25.138",
+    "AuctionsTableName": "main-Auctions",
+    "AuctionsTableArn": "arn:aws:dynamodb:eu-central-1:027625171711:table/main-Auctions",
+    "AuctionLifecycleStateMachineName": "main-AuctionLifecycleSfn",
+    "AuctionEventsDLQArn": "arn:aws:sqs:eu-central-1:027625171711:main-AuctionEventsDLQ"
+  },
+  "main-ServerlessStack": {
+    "ApiGatewayUrl": "https://1dzrokcmy8.execute-api.eu-central-1.amazonaws.com",
+    "Branch": "main",
+    "PlaceBidExpSfnArn": "arn:aws:states:eu-central-1:027625171711:stateMachine:main-PlaceBidExpSfn",
+    "Region": "eu-central-1",
+    "Stage": "dev",
+    "PlaceBidExpSfnName": "main-PlaceBidExpSfn"
+  }
+}
