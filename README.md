@@ -1,8 +1,8 @@
-# Serverless Auction System
+# Serverless Auction System with AWS CDK
 
-A serverless auction system built with AWS CDK, implementing a GitFlow workflow with environment segregation.
+This project implements a serverless auction system using AWS CDK with TypeScript. The system allows users to create auctions, place bids, and automatically manages the auction lifecycle from creation to completion.
 
-## Architecture
+## Architecture Overview
 
 The system consists of two main stacks:
 
@@ -14,16 +14,42 @@ The system consists of two main stacks:
 
 2. **ServerlessStack**: Contains all serverless compute resources
    - API Gateway for bid placement
-   - Lambda functions for processing DynamoDB streams
    - Express Step Functions for transaction management
 
-## Development Workflow
+## Development Iterations
 
-This project follows the GitFlow workflow:
+This project was developed through several iterations, each building on the previous one:
 
-- **Feature branches**: Deploy to dev account with branch name prefix
-- **Test branch**: Deploy to test account with automated testing
-- **Prod branch**: Deploy to production account with automated testing
+1. **Iteration 1: Initial Spike** (`iteration1/spike`)
+   - Single stack with basic functionality
+   - Simple Lambda function for bid placement
+   - Basic DynamoDB tables
+
+2. **Iteration 2: Improved Testing** (`iteration2/testing`)
+   - Gherkin-style test nomenclature (Given/When/Then)
+   - Better error handling
+   - Improved validation
+
+3. **Iteration 3: Multi-Account Setup** (`iteration3/multi-account`)
+   - Configuration for multi-account deployment
+   - GitFlow workflow implementation
+   - Environment-specific resource naming
+
+4. **Iteration 4: Express Step Function** (`iteration4/express-step-function`)
+   - Replace Lambda with Express Step Function
+   - Transaction handling for bid placement
+   - Better logging and monitoring
+
+5. **Iteration 5: Stack Separation** (`iteration5/stack-separation`)
+   - Split into StatefulStack and ServerlessStack
+   - Better separation of concerns
+   - Cleaner lifecycle management
+
+6. **Iteration 6: Auction Lifecycle** (`iteration6/auction-lifecycle`)
+   - EventBridge Pipes for event-driven architecture
+   - Step Function for auction lifecycle management
+   - Automatic status updates
+   - End-to-end testing
 
 ## Setup
 
@@ -32,12 +58,6 @@ This project follows the GitFlow workflow:
 - Node.js 18+
 - AWS CLI configured with profiles for dev, test, and prod accounts
 - AWS CDK installed
-
-### Installation
-
-```bash
-npm install
-```
 
 ### Configuration
 
@@ -98,15 +118,6 @@ npm run test:prod
 npm run destroy:prod -- --all
 ```
 
-## CI/CD
-
-The project includes GitHub Actions workflows for:
-
-- Deploying resources on push to feature, test, and prod branches
-- Running tests automatically for test and prod branches
-- Rolling back on test failures
-- Cleaning up resources when pull requests are closed
-
 ## Testing
 
 ```bash
@@ -114,6 +125,13 @@ The project includes GitHub Actions workflows for:
 npm test
 
 # Run specific tests
-npm test -- -t "Auction Stream Processor"
-npm test -- -t "Auction demo E2E"
+npm test -- -t "Auction Lifecycle"
+npm test -- -t "Bid Placement"
 ```
+
+## Future Enhancements
+
+- Add authentication and authorization
+- Implement notifications for auction events
+- Add support for auction categories and search
+- Implement a UI for auction management and bidding
